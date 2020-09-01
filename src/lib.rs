@@ -4,33 +4,33 @@ use core::ptr::NonNull;
 use std::fmt;
 
 /// A simple smart pointer structure which uses to hold a large data set on the 
-/// heap. And the total size of this structure should be just the size of the 
+/// heap, and the total size of this structure should be just the size of the 
 /// raw pointer:
 ///
-/// 8 bytes in 64 bit machine
-/// 4 bytes in 32 bit machine
+/// - 8 bytes in 64 bit machine
+/// - 4 bytes in 32 bit machine
 ///
-/// We override the default `Deref` trait to just get back the head value reference
+/// We override the default `Deref` trait to just getting back the heap value reference
 /// rather the `BlackBox` instance itself.
 ///
 /// As we want to hold a raw pointer in this structure, and `Option<NonNull<T>>`
 /// describes either a **valid pointer** or a **null pointer**.  That's why we use
 /// `Option` here which only got 2 possible values:
 ///
-/// `Some()` - means **valid pointer**
-/// `None` - means **null pointer**
+/// - `Some()` - means **valid pointer**
+/// - `None` - means **null pointer**
 ///
-/// The **valid pointer* means:
+/// The **valid pointer** means:
 ///
 /// 1. Non null, it must point to particular `<T>` instance.
-/// 2. `<T>` instance should live inside the **heap**.
+/// 2. `<T>` instance should live on the **heap**.
 pub struct BlackBox<T: ?Sized> {
     large_data_on_the_heap: Option<NonNull<T>>,
 }
 
 ///
 impl<T: fmt::Debug> BlackBox<T> {
-    /// Create instance, and the `large_data_set`'s ownership will be moved into
+    /// Creating instance, and the `large_data_set`'s ownership will be moved into
     /// the created instance.
     pub fn new(large_data_set: T) -> Self {
         // We box the original value here to MAKE SURE that value is allocated on the heap!!!
@@ -46,7 +46,7 @@ impl<T: fmt::Debug> BlackBox<T> {
 }
 
 /// We want `{:?}` or `{:#?}` work for `BlackBox` instance, that's why we ask for
-/// the `T` implements the `fmt::Debug` trait
+/// the `T` should implement the `fmt::Debug` trait
 impl<T: fmt::Debug> fmt::Debug for BlackBox<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Just for printing the data (not move the ownership), that's why
@@ -73,9 +73,8 @@ impl<T: fmt::Debug> fmt::Debug for BlackBox<T> {
     }
 }
 
-/// Override the default `deref` trait to get back the heap value rather than
-/// the structure instance itself, make it more transparent, as our purpose just
-/// want to wrap something into the heap.
+/// Override the default `deref` trait to get back the heap value reference rather 
+/// than the structure instance itself, make it looks more natural and transparent.
 impl<T> std::ops::Deref for BlackBox<T> {
     type Target = T;
 
